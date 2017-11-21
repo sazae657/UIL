@@ -1,0 +1,3 @@
+[submodule "TonNurako.UIL.Test/motif-code"]
+	path = TonNurako.UIL.Test/motif-code
+	url = git://git.code.sf.net/p/motif/code

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TonNurako.UIL", "TonNurako.UIL\TonNurako.UIL.csproj", "{106D6C4D-5F9D-424E-8C27-AB919DFF0426}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TonNurako.UIL.Test", "TonNurako.UIL.Test\TonNurako.UIL.Test.csproj", "{95C7CA5A-49B9-47BC-BC2B-1F9D371D1F27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{106D6C4D-5F9D-424E-8C27-AB919DFF0426}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{106D6C4D-5F9D-424E-8C27-AB919DFF0426}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{106D6C4D-5F9D-424E-8C27-AB919DFF0426}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{106D6C4D-5F9D-424E-8C27-AB919DFF0426}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95C7CA5A-49B9-47BC-BC2B-1F9D371D1F27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C7CA5A-49B9-47BC-BC2B-1F9D371D1F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C7CA5A-49B9-47BC-BC2B-1F9D371D1F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C7CA5A-49B9-47BC-BC2B-1F9D371D1F27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFB9F404-29EE-4A28-B126-1858871B699E}
+	EndGlobalSection
+EndGlobal
