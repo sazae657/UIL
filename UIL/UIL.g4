@@ -7,7 +7,7 @@ unit
 
 
 module
-    : 'module' (STRING | IDENTIFIER) (objects|module_opts+|include+)* statements
+    : MODULE (STRING | IDENTIFIER) (objects|module_opts+|include+)* statements
     ;
 
 module_opts
@@ -15,12 +15,12 @@ module_opts
     ;
 
 include
-    : 'include' IDENTIFIER STRING (';')?
+    : INCLUDE IDENTIFIER STRING (';')?
     ;
-    
+
 
 end_module
-    : 'end' 'module' ';'
+    : END MODULE ';'
     ;
 
 statements
@@ -29,17 +29,17 @@ statements
 
 // identifier
 identifier
-    : 'identifier' (IDENTIFIER ';')+
+    : UIL_IDENTIFIER (IDENTIFIER ';')+
     ;
 
 // procedure
 procedure
-    : 'procedure'  (IDENTIFIER '(' (IDENTIFIER|value_type)?')' ';')+
+    : PROCEDURE  (IDENTIFIER '(' (IDENTIFIER|value_type)?')' ';')+
     ;
 
 // objects
 objects
-    : 'objects' '=' '{' decl_object* '}'
+    : OBJECTS '=' '{' decl_object* '}'
     ;
 
 decl_object
@@ -48,59 +48,58 @@ decl_object
 
 // value
 value
-    : 'value' (IDENTIFIER ':' 'exported'? value_def ('&' value_def)* ';')+
+    : VALUE (IDENTIFIER ':' EXPORTED? value_def ('&' value_def)* ';')+
     ;
 
 value_def
     : (IDENTIFIER|STRING|INTEGER|FLOAT)
-    | value_exp+ 
-    | (value_type|IDENTIFIER) '(' value_argv ')' 
-    | (value_type|IDENTIFIER) '(' (value_argv ',')+ value_argv ')' 
-    | (value_type|IDENTIFIER) '(' STRING ',' (value_modifier|IDENTIFIER) ')' 
-    | (value_type|IDENTIFIER) '(' IDENTIFIER ',' (value_type|value_modifier) ')' 
+    | value_exp+
+    | (value_type|IDENTIFIER) '(' value_argv (',' value_argv)* ')'
+    | (value_type|IDENTIFIER) '(' IDENTIFIER ',' (value_type|color_modifier) ')'
     ;
 
 value_argv
-	: IDENTIFIER|STRING|INTEGER|FLOAT|value_exp|value_sign|string_exp|makro_exp
+	: color_modifier|IDENTIFIER|STRING|INTEGER|FLOAT|value_exp|value_sign|string_exp|makro_exp
 	;
+
 
 value_exp
 	: IDENTIFIER ('+'|'-'|'*'|'/') IDENTIFIER?
 	;
-	
+
 makro_exp
 	: IDENTIFIER '(' (IDENTIFIER|STRING) ')'
-	| IDENTIFIER '(' (IDENTIFIER|STRING) ')' '=' value_argv
-	;	
-	
+	;
+
 string_exp
 	: (IDENTIFIER|STRING) '&' (IDENTIFIER|STRING)
-	;	
-	
+	;
+
 
 value_sign
-	: value_modifier? IDENTIFIER '=' (STRING|IDENTIFIER)
+	: color_modifier? (makro_exp|IDENTIFIER) '=' (STRING|IDENTIFIER)
 	;
-	
-value_modifier
-	: 'background' | 'foreground'
+
+color_modifier
+	: BACKGROUND | FOREGROUND
 	;
-	
+
 value_type
-	:'string_table'
-	|'procedures'
-	|'translation_table'
-	|'compound_string'
-	|'compound_string_table'
-	|'integer_table'
-	|'asciz_string_table'
-	|'font_table'
-	|'keysym'
+	:STRING_TABLE
+	|PROCEDURES
+	|TRANSLATION_TABLE
+	|COMPOUND_STRING
+	|COMPOUND_STRING_TABLE
+	|INTEGER_TABLE
+	|ASCIZ_STRING_TABLE
+	|FONT_TABLE
+	|WIDE_CHARACTER
+	|KEYSYM
 	;
 
 // list
 list
-    : 'list' list_stmt+
+    : LIST list_stmt+
     ;
 
 list_stmt
@@ -112,57 +111,55 @@ list_stmt
 
 // object
 object
-    : 'object' object_stmt+
+    : OBJECT object_stmt+
     ;
 
 object_stmt
     : IDENTIFIER ':' IDENTIFIER controls_modifier? '{' (controls|arguments|callbacks)* '}' ';'
     ;
 
+// controls
 controls
-    : 'controls' '{' (controls_c|controls_n)+ '}' ';'
+    : CONTROLS '{' (controls_c|controls_n)+ '}' ';'
     ;
 
 controls_c
-    : 'unmanaged'? IDENTIFIER controls_modifier? IDENTIFIER ';'
-    | IDENTIFIER controls_inner_modifier? '{' (controls|arguments|callbacks)* '}' ';'
+    : controls_modifier? IDENTIFIER controls_modifier? IDENTIFIER ';'
+    | IDENTIFIER controls_modifier? '{' (controls|arguments|callbacks)* '}' ';'
     ;
-    
+
 controls_modifier
-	: 'gadget'
+	: (GADGET|UNMANAGED)+
 	;
-	
-controls_inner_modifier
-	: ('gadget'|'unmanaged')+
-	;	
-    
+
+
 controls_n
     : object_stmt
     ;
 
+// arguments
 arguments
-    : 'arguments' '{' (arguments_k ';')* '}' ';'
+    : ARGUMENTS '{' (arguments_k ';')* '}' ';'
     ;
-    
+
 arguments_k
 	: IDENTIFIER '=' arguments_c
-	| 'arguments' IDENTIFIER
+	| ARGUMENTS IDENTIFIER
 	;
-    
+
 arguments_c
 	:  (arguments_a|arguments_f)
 	|  (arguments_a|arguments_f) '&' (arguments_c)+
-	;    
+	;
 
 arguments_a
-    : (STRING|INTEGER|IDENTIFIER)+ 
+    : (STRING|INTEGER|IDENTIFIER)+
     ;
 
 arguments_f
-    : IDENTIFIER '('  (',' arguments_gf)* ')'
-    | value_type '(' arguments_gf (',' arguments_gf)* ')'
+    : value_type '(' arguments_gf (',' arguments_gf)* ')'
     ;
-    
+
 arguments_gf
 	: (STRING|INTEGER|IDENTIFIER)
 	| arguments_fa
@@ -173,26 +170,66 @@ arguments_fa
     : IDENTIFIER '=' (STRING|INTEGER|IDENTIFIER)
     ;
 
+//callbacks
 callbacks
-    : 'callbacks' ('{' callbacks_def* '}' | IDENTIFIER) ';'
-    ;
-    
-callbacks_def
-    : IDENTIFIER ('(' IDENTIFIER ')')? '=' 'procedure' IDENTIFIER '(' IDENTIFIER? (STRING|INTEGER|IDENTIFIER)? ')' ';'
-    | 'callbacks' IDENTIFIER ';'
-    | IDENTIFIER '=' procedures
-    | IDENTIFIER '=' 'procedures' IDENTIFIER ';'
+    : CALLBACKS ('{' (callbacks_def)* '}' | IDENTIFIER) ';'
     ;
 
-procedures
-	: 'procedures' '{' procedures_def+ '}' ';'
+callbacks_def
+    : IDENTIFIER ('(' IDENTIFIER ')')? '=' PROCEDURE callbacks_inline_prpc ';'
+    | CALLBACKS IDENTIFIER  ';'
+    | IDENTIFIER '=' procedures
+    ;
+
+callbacks_inline_prpc
+	:  IDENTIFIER '(' IDENTIFIER? (STRING|INTEGER|IDENTIFIER)? ')'
 	;
-	
+
+//procedures
+procedures
+	: PROCEDURES (IDENTIFIER | '{' procedures_def+ '}' ) ';'
+	;
+
 procedures_def
-	: IDENTIFIER '(' ')' ';'
-	| IDENTIFIER '(' IDENTIFIER ')' ';'
-	| 'procedures' IDENTIFIER ';'
-	;	
+	: IDENTIFIER '(' IDENTIFIER? ')' ';'
+	| PROCEDURES IDENTIFIER ';'
+	;
+
+//予約語
+STRING_TABLE: S T R I N G '_' T A B L E;
+TRANSLATION_TABLE: T R A N S L A T I O N '_' T A B L E;
+COMPOUND_STRING: C O M P O U N D '_' S T R I N G;
+COMPOUND_STRING_TABLE: C O M P O U N D '_' S T R I N G '_' T A B L E;
+ASCIZ_STRING_TABLE: A S C I Z '_' S T R I N G '_' T A B L E;
+
+INTEGER_TABLE: I N T E G E R '_' T A B L E;
+FONT_TABLE: F O N T '_' T A B L E;
+WIDE_CHARACTER: W I D E '_' C H A R A C T E R;
+KEYSYM: K E Y S Y M;
+
+MODULE: M O D U L E;
+END: E N D;
+VALUE: V A L U E;
+INCLUDE: I N C L U D E;
+UIL_IDENTIFIER: I D E N T I F I E R;
+PROCEDURE: P R O C E D U R E;
+PROCEDURES: P R O C E D U R E S;
+
+OBJECTS: O B J E C T S;
+LIST: L I S T;
+OBJECT: O B J E C T;
+CONTROLS: C O N T R O L S;
+
+ARGUMENTS: A R G U M E N T S;
+CALLBACKS: C A L L B A C K S;
+
+GADGET: G A D G E T;
+UNMANAGED: U N M A N A G E D;
+
+EXPORTED: E X P O R T E D;
+BACKGROUND: B A C K G R O U N D;
+FOREGROUND: F O R E G R O U N D;
+
 
 INTEGER
    : ('+'|'-')? DecimalIntegerLiteral
@@ -249,7 +286,7 @@ fragment DecimalFloatingPointLiteral
 fragment ExponentPart
    : ExponentIndicator SignedInteger
    ;
-   
+
 fragment ExponentIndicator
    : [eE]
    ;
@@ -274,6 +311,66 @@ fragment LetterOrDigit
    : [a-zA-Z0-9$_]
    ;
 
+
+fragment A:'a';
+fragment B:'b';
+fragment C:'c';
+fragment D:'d';
+fragment E:'e';
+fragment F:'f';
+fragment G:'g';
+fragment H:'h';
+fragment I:'i';
+fragment J:'j';
+fragment K:'k';
+fragment L:'l';
+fragment M:'m';
+fragment N:'n';
+fragment O:'o';
+fragment P:'p';
+fragment Q:'q';
+fragment R:'r';
+fragment S:'s';
+fragment T:'t';
+fragment U:'u';
+fragment V:'v';
+fragment W:'w';
+fragment X:'x';
+fragment Y:'y';
+fragment Z:'z';
+
+
+
+/*
+fragment A:('a'|'A');
+fragment B:('b'|'B');
+fragment C:('c'|'C');
+fragment D:('d'|'D');
+fragment E:('e'|'E');
+fragment F:('f'|'F');
+fragment G:('g'|'G');
+fragment H:('h'|'H');
+fragment I:('i'|'I');
+fragment J:('j'|'J');
+fragment K:('k'|'K');
+fragment L:('l'|'L');
+fragment M:('m'|'M');
+fragment N:('n'|'N');
+fragment O:('o'|'O');
+fragment P:('p'|'P');
+fragment Q:('q'|'Q');
+fragment R:('r'|'R');
+fragment S:('s'|'S');
+fragment T:('t'|'T');
+fragment U:('u'|'U');
+fragment V:('v'|'V');
+fragment W:('w'|'W');
+fragment X:('x'|'X');
+fragment Y:('y'|'Y');
+fragment Z:('z'|'Z');
+*/
+
+
 WS
    : [ \t\r\n\u000C] + -> skip
    ;
@@ -288,3 +385,5 @@ COMMENT
 LINE_COMMENT
    : '!' ~ [\r\n]* -> skip
    ;
+
+

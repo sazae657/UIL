@@ -23,8 +23,6 @@ namespace TonNurako.UIL.Test
                 if (boo) {
                     continue;
                 }
-
-
                 yield return new object[] { s };
             }
         }
