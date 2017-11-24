@@ -27,6 +27,42 @@ statements
     : (value|list|identifier|object|procedure)+
     ;
 
+makro_call_va
+	: IDENTIFIER '(' makro_argv (',' makro_argv)* ')' 
+    | IDENTIFIER '(' IDENTIFIER ',' color_modifier ')'	
+	;
+
+makro_argv
+	: color_modifier|IDENTIFIER|STRING|INTEGER|FLOAT|expr|makro_argv_prop|string_expr|makro_call_va
+	;
+	
+makro_argv_prop
+	: color_modifier? (makro_call_va|IDENTIFIER) '=' (STRING|IDENTIFIER)
+	;	
+
+expr: ex_add ex_value
+    | ex_value ex_mult expr
+    | ex_value ex_add expr
+    | ex_value
+    ;
+ex_value: IDENTIFIER
+     | INTEGER
+     | FLOAT
+     | '(' expr ')'
+     ;
+ex_add: '+' | '-';
+ex_mult: '*' | '/';
+
+
+string_expr
+	: IDENTIFIER|STRING|cstring_call
+	| (IDENTIFIER|STRING|cstring_call) ('&' string_expr)+	
+	;
+	
+cstring_call
+	: 'compound_string' '(' makro_argv (',' makro_argv)* ')' 
+	;
+
 // identifier
 identifier
     : UIL_IDENTIFIER (IDENTIFIER ';')+
@@ -34,7 +70,7 @@ identifier
 
 // procedure
 procedure
-    : PROCEDURE  (IDENTIFIER '(' (IDENTIFIER|value_type)?')' ';')+
+    : PROCEDURE  (IDENTIFIER '(' IDENTIFIER?')' ';')+
     ;
 
 // objects
@@ -48,54 +84,21 @@ decl_object
 
 // value
 value
-    : VALUE (IDENTIFIER ':' EXPORTED? value_def ('&' value_def)* ';')+
+    : VALUE (IDENTIFIER ':' EXPORTED? value_def  ';')+
     ;
 
 value_def
     : (IDENTIFIER|STRING|INTEGER|FLOAT)
-    | value_exp+
-    | (value_type|IDENTIFIER) '(' value_argv (',' value_argv)* ')'
-    | (value_type|IDENTIFIER) '(' IDENTIFIER ',' (value_type|color_modifier) ')'
+    | expr
+	| makro_call_va
+	| string_expr
     ;
 
-value_argv
-	: color_modifier|IDENTIFIER|STRING|INTEGER|FLOAT|value_exp|value_sign|string_exp|makro_exp
-	;
-
-
-value_exp
-	: IDENTIFIER ('+'|'-'|'*'|'/') IDENTIFIER?
-	;
-
-makro_exp
-	: IDENTIFIER '(' (IDENTIFIER|STRING) ')'
-	;
-
-string_exp
-	: (IDENTIFIER|STRING) '&' (IDENTIFIER|STRING)
-	;
-
-
-value_sign
-	: color_modifier? (makro_exp|IDENTIFIER) '=' (STRING|IDENTIFIER)
-	;
 
 color_modifier
 	: BACKGROUND | FOREGROUND
 	;
 
-value_type
-	:STRING_TABLE
-	|PROCEDURES
-	|TRANSLATION_TABLE
-	|COMPOUND_STRING
-	|COMPOUND_STRING_TABLE
-	|INTEGER_TABLE
-	|ASCIZ_STRING_TABLE
-	|FONT_TABLE
-	|WIDE_CHARACTER
-	|KEYSYM
-	;
 
 // list
 list
@@ -148,23 +151,15 @@ arguments_k
 	;
 
 arguments_c
-	:  (arguments_a|arguments_f)
-	|  (arguments_a|arguments_f) '&' (arguments_c)+
+	: arguments_a
+	| makro_call_va
+	| string_expr
 	;
 
 arguments_a
     : (STRING|INTEGER|IDENTIFIER)+
     ;
 
-arguments_f
-    : value_type '(' arguments_gf (',' arguments_gf)* ')'
-    ;
-
-arguments_gf
-	: (STRING|INTEGER|IDENTIFIER)
-	| arguments_fa
-	| (STRING|INTEGER|IDENTIFIER) '&' arguments_gf
-	;
 
 arguments_fa
     : IDENTIFIER '=' (STRING|INTEGER|IDENTIFIER)
@@ -196,16 +191,16 @@ procedures_def
 	;
 
 //予約語
-STRING_TABLE: S T R I N G '_' T A B L E;
-TRANSLATION_TABLE: T R A N S L A T I O N '_' T A B L E;
-COMPOUND_STRING: C O M P O U N D '_' S T R I N G;
-COMPOUND_STRING_TABLE: C O M P O U N D '_' S T R I N G '_' T A B L E;
-ASCIZ_STRING_TABLE: A S C I Z '_' S T R I N G '_' T A B L E;
+//STRING_TABLE: S T R I N G '_' T A B L E;
+//TRANSLATION_TABLE: T R A N S L A T I O N '_' T A B L E;
+//COMPOUND_STRING: C O M P O U N D '_' S T R I N G;
+//COMPOUND_STRING_TABLE: C O M P O U N D '_' S T R I N G '_' T A B L E;
+//ASCIZ_STRING_TABLE: A S C I Z '_' S T R I N G '_' T A B L E;
 
-INTEGER_TABLE: I N T E G E R '_' T A B L E;
-FONT_TABLE: F O N T '_' T A B L E;
-WIDE_CHARACTER: W I D E '_' C H A R A C T E R;
-KEYSYM: K E Y S Y M;
+//INTEGER_TABLE: I N T E G E R '_' T A B L E;
+//FONT_TABLE: F O N T '_' T A B L E;
+//WIDE_CHARACTER: W I D E '_' C H A R A C T E R;
+//KEYSYM: K E Y S Y M;
 
 MODULE: M O D U L E;
 END: E N D;
