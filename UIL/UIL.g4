@@ -7,7 +7,7 @@ unit
 
 
 module
-    : MODULE (STRING | IDENTIFIER) (objects|module_opts+|include+)* statements
+    : MODULE IDENTIFIER (objects|module_opts+|include+)* statements
     ;
 
 module_opts
@@ -60,7 +60,7 @@ string_expr
 	;
 	
 cstring_call
-	: 'compound_string' '(' makro_argv (',' makro_argv)* ')' 
+	: COMPOUND_STRING '(' makro_argv (',' makro_argv)* ')' 
 	;
 
 // identifier
@@ -193,7 +193,7 @@ procedures_def
 //予約語
 //STRING_TABLE: S T R I N G '_' T A B L E;
 //TRANSLATION_TABLE: T R A N S L A T I O N '_' T A B L E;
-//COMPOUND_STRING: C O M P O U N D '_' S T R I N G;
+COMPOUND_STRING: C O M P O U N D '_' S T R I N G;
 //COMPOUND_STRING_TABLE: C O M P O U N D '_' S T R I N G '_' T A B L E;
 //ASCIZ_STRING_TABLE: A S C I Z '_' S T R I N G '_' T A B L E;
 
@@ -333,7 +333,6 @@ fragment W:'w';
 fragment X:'x';
 fragment Y:'y';
 fragment Z:'z';
-
 
 
 /*
